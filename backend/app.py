@@ -186,7 +186,8 @@ def on_client_frame(data):
             for (x, y, w, h) in faces:
                 results.append({'name': 'Desconhecido', 'box': [int(x), int(y), int(w), int(h)]})
 
-        emit('recognition_update', {'camera_id': 'main', 'results': results})
+        h, w = frame.shape[:2]
+        emit('recognition_update', {'camera_id': 'main', 'results': results, 'frame_w': int(w), 'frame_h': int(h)})
     except Exception as e:
         print('client_frame error:', e)
 
