@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reconhecimento</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+  <header>
+    <a href="/">Início</a>
+  </header>
+  <main>
+    <h2>Reconhecimento em Tempo Real</h2>
+
+    <label><input type="checkbox" id="multiCamToggle"/> Habilitar Multicâmera</label>
+
+    <section class="video-area">
+      <div class="video-block">
+        <h3>Camera Padrão</h3>
+        <video id="mainVideo" autoplay playsinline></video>
+        <canvas id="mainOverlay" class="overlay"></canvas>
+      </div>
+      <div id="grid" class="grid"></div>
+    </section>
+  </main>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="/static/js/reconhecimento.js"></script>
+</body>
+</html>

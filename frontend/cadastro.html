@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro de Rostos</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+  <header>
+    <a href="/">Início</a>
+  </header>
+  <main>
+    <h2>Cadastro de Rostos</h2>
+    <div class="form">
+      <label>Nome:</label>
+      <input id="nameInput" type="text" placeholder="Nome" />
+
+      <label>Fonte de Vídeo:</label>
+      <select id="sourceSelect">
+        <option value="local">Câmera Local (Webcam)</option>
+        <option value="ip">Câmera IP</option>
+      </select>
+
+      <div id="ipGroup" class="hidden">
+        <label>URL da Câmera IP (RTSP/HTTP):</label>
+        <input id="ipUrl" type="text" placeholder="rtsp://user:pass@host:554/stream" />
+        <button id="saveIpCam">Salvar Câmera IP</button>
+      </div>
+
+      <video id="preview" autoplay playsinline></video>
+      <canvas id="hiddenCanvas" class="hidden"></canvas>
+
+      <button id="captureBtn">Cadastrar Rosto</button>
+    </div>
+  </main>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="/static/js/cadastro.js"></script>
+</body>
+</html>
