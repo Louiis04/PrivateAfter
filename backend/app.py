@@ -19,7 +19,6 @@ CAMERAS_FILE = DATA_DIR / 'cameras.json'
 FRONTEND_DIR = BASE_DIR / 'frontend'
 PROCESSING_DIR = BASE_DIR / 'processing_nodes'
 
-os.makedirs(DATA_DIR, exist_ok=True)
 
 app = Flask(__name__, static_folder=str(FRONTEND_DIR / 'static'))
 socketio = SocketIO(app, cors_allowed_origins='*', async_mode='eventlet')
@@ -29,29 +28,79 @@ processing_procs: Dict[str, subprocess.Popen] = {}
 
 # ----------------- Helpers -----------------
 
-def load_encodings() -> Dict[str, List[float]]:
-    if ENCODINGS_FILE.exists():
-        with open(ENCODINGS_FILE, 'rb') as f:
-            return pickle.load(f)
-    return {}
+import mysql.connector
+from mysql.connector import Error
+import json
 
+DB_CONFIG = {
+    'user': 'ari',
+    'password': 'ari',
+    'host': 'localhost',
+    'port': '3307',  # Porta mapeada no docker-compose.yml
+    'database': 'privateafter_db',
+    'raise_on_warnings': True
+}
+
+def load_encodings() -> Dict[str, List[float]]:
+    encodings = {}
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, encoding FROM encodings")
+        for name, enc_json in cursor:
+            encodings[name] = json.loads(enc_json)
+        cursor.close()
+        conn.close()
+    except Error as e:
+        print(f"Erro ao carregar encodings: {e}")
+    return encodings
 
 def save_encodings(encodings: Dict[str, List[float]]):
-    with open(ENCODINGS_FILE, 'wb') as f:
-        pickle.dump(encodings, f)
-
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        for name, enc in encodings.items():
+            enc_json = json.dumps(enc)
+            cursor.execute("""
+                INSERT INTO encodings (name, encoding)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE encoding = %s
+            """, (name, enc_json, enc_json))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Error as e:
+        print(f"Erro ao salvar encodings: {e}")
 
 def load_cameras() -> Dict[str, str]:
-    if CAMERAS_FILE.exists():
-        with open(CAMERAS_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {}
-
+    cameras = {}
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        cursor.execute("SELECT camera_id, url FROM cameras")
+        for cam_id, url in cursor:
+            cameras[cam_id] = url
+        cursor.close()
+        conn.close()
+    except Error as e:
+        print(f"Erro ao carregar cameras: {e}")
+    return cameras
 
 def save_cameras(cameras: Dict[str, str]):
-    with open(CAMERAS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(cameras, f, ensure_ascii=False, indent=2)
-
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        for cam_id, url in cameras.items():
+            cursor.execute("""
+                INSERT INTO cameras (camera_id, url)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE url = %s
+            """, (cam_id, url, url))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Error as e:
+        print(f"Erro ao salvar cameras: {e}")
 
 # ----------------- Routes -----------------
 

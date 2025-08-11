@@ -1,0 +1,21 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: privateafter_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ari  # Senha do root
+      MYSQL_USER: ari          # Novo usuário
+      MYSQL_PASSWORD: ari      # Senha do novo usuário
+      MYSQL_DATABASE: privateafter_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uari", "-pari"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:
