@@ -4,26 +4,170 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Reconhecimento</title>
-  <link rel="stylesheet" href="/static/css/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <header>
-    <a href="/">Início</a>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+  <!-- Header -->
+  <header class="bg-white/80 backdrop-blur-lg border-b border-white/20 sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4">
+      <nav class="flex items-center justify-between">
+        <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/60 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white rounded-lg border border-gray-200 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Voltar ao Início
+        </a>
+      </nav>
+    </div>
   </header>
-  <main>
-    <h2>Reconhecimento em Tempo Real</h2>
 
-    <label><input type="checkbox" id="multiCamToggle"/> Habilitar Multicâmera</label>
-
-    <section class="video-area">
-      <div class="video-block">
-        <h3>Camera Padrão</h3>
-        <video id="mainVideo" autoplay playsinline></video>
-        <canvas id="mainOverlay" class="overlay"></canvas>
+  <main class="container mx-auto px-6 py-8 max-w-7xl">
+    <!-- Título e Controles -->
+    <div class="mb-8">
+      <div class="text-center mb-6">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+          Reconhecimento
+        </h2>
+        <p class="text-gray-600">
+          Monitoramento de detecção facial
+        </p>
       </div>
-      <div id="grid" class="grid"></div>
+
+      <!-- Toggle Multicâmera -->
+      <div class="flex justify-center">
+        <label class="inline-flex items-center space-x-3 bg-white/70 backdrop-blur-lg px-6 py-3 rounded-xl border border-white/30 cursor-pointer hover:shadow-lg transition-all duration-300">
+          <input 
+            type="checkbox" 
+            id="multiCamToggle" 
+            class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+          />
+          <span class="text-gray-700 font-medium">
+            Habilitar Multicâmera
+          </span>
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+          </svg>
+        </label>
+      </div>
+    </div>
+
+    <!-- Área de Vídeo -->
+    <section class="video-area space-y-6">
+      <!-- Câmera Principal -->
+      <div class="video-block bg-white/70 backdrop-blur-lg rounded-2xl overflow-hidden shadow-xl border border-white/30">
+        <!-- Header da Câmera -->
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
+          <h3 class="text-xl font-bold text-white flex items-center">
+            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            Câmera Principal
+            <span class="ml-auto flex items-center space-x-2">
+              <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <span class="text-sm">Ao Vivo</span>
+            </span>
+          </h3>
+        </div>
+        
+        <!-- Container do Vídeo -->
+        <div class="relative p-4">
+          <div class="relative bg-black rounded-xl overflow-hidden shadow-lg max-w-3xl mx-auto" style="aspect-ratio: 16/9;">
+            <video 
+              id="mainVideo" 
+              autoplay 
+              playsinline
+              class="w-full h-full object-contain"
+            ></video>
+            <canvas 
+              id="mainOverlay" 
+              class="absolute top-0 left-0 w-full h-full pointer-events-none"
+            ></canvas>
+            
+            <!-- Overlay de Status -->
+            <div class="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm">
+              <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span>Detecção Ativa</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid de Câmeras Adicionais -->
+      <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+        <!-- Câmeras adicionais serão inseridas aqui via JavaScript -->
+      </div>
     </section>
+
+    <!-- Painel de Informações -->
+    <div class="mt-8 grid md:grid-cols-3 gap-6">
+      <!-- Status do Sistema -->
+      <div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 border border-white/30">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="p-2 bg-green-100 rounded-lg">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-800">Status do Sistema</h3>
+        </div>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div class="flex justify-between">
+            <span>Câmeras Ativas:</span>
+            <span id="activeCameras" class="font-medium text-green-600">1</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Detecções:</span>
+            <span id="detectionCount" class="font-medium text-blue-600">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>FPS:</span>
+            <span id="fpsCounter" class="font-medium text-purple-600">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Últimas Detecções -->
+      <div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 border border-white/30">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="p-2 bg-blue-100 rounded-lg">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-800">Últimas Detecções</h3>
+        </div>
+        <div id="recentDetections" class="space-y-2 text-sm text-gray-600">
+          <p class="text-center text-gray-400">Nenhuma detecção ainda</p>
+        </div>
+      </div>
+
+      <!-- Controles -->
+      <div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 border border-white/30">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="p-2 bg-purple-100 rounded-lg">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-800">Controles</h3>
+        </div>
+        <div class="space-y-3">
+          <button class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200">
+            Pausar Detecção
+          </button>
+          <button class="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200">
+            Capturar Tela
+          </button>
+          <button class="w-full px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200">
+            Parar Sistema
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
+
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/static/js/reconhecimento.js"></script>
 </body>
