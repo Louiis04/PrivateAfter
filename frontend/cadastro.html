@@ -182,5 +182,30 @@
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/static/js/cadastro.js"></script>
+  <script>
+    // Aguardar um pouco e verificar autenticação mais rigorosamente
+    setTimeout(async () => {
+      try {
+        const r = await fetch('/api/me', { credentials: 'same-origin' });
+        const j = await r.json().catch(() => ({}));
+        if (!j || j.ok === false || !j.user || !j.user.id) {
+          window.location.replace('/login.html?next=' + encodeURIComponent(window.location.pathname));
+          return;
+        }
+      } catch {
+        window.location.replace('/login.html?next=' + encodeURIComponent(window.location.pathname));
+        return;
+      }
+
+      // Carregar rostos cadastrados se autenticado
+      try {
+        const res = await fetch('/api/faces', { credentials: 'same-origin' });
+        const data = await res.json().catch(() => ({ ok: false }));
+        if (data.ok && Array.isArray(data.faces)) {
+          console.log('Rostos cadastrados:', data.faces);
+        }
+      } catch {}
+    }, 100);
+  </script>
 </body>
 </html>

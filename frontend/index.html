@@ -3,31 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SRF</title>
+  <title>SRF - Sistema de Reconhecimento Facial</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-blue-100 min-h-screen flex flex-col">
   <!-- Navigation Bar -->
   <header class="bg-white bg-opacity-90 backdrop-filter backdrop-blur-lg shadow-lg sticky top-0 z-10">
     <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-      <a href="/index" class="text-2xl font-extrabold text-transparent text-gray-800">SRF</a>
-      <div class="space-x-4">
-        <a href="/cadastro" class="text-gray-600 hover:text-blue-500 transition duration-300">Cadastro</a>
-        <a href="/reconhecimento" class="text-gray-600 hover:text-blue-500 transition duration-300">Reconhecimento</a>
+      <a href="/" class="text-2xl font-extrabold text-gray-800">SRF</a>
+      <div class="space-x-4" id="navLinks">
+        <!-- Links serão preenchidos via JavaScript baseado na autenticação -->
       </div>
     </div>
   </header>
 
   <!-- Hero Section -->
   <main class="container mx-auto px-4 py-12 flex-grow flex items-center justify-center">
-    <div class="bg-white bg-opacity-30 backdrop-filter backdrop-blur-lg rounded-xl shadow-xl p-10 text-center max-w-2xl transform transition-all duration-500 hover:scale-105">
-      <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4 animate-pulse">Sistema de reconhecimento facial</h1>
-      <p class="text-lg text-gray-600 mb-8">Explore nosso sistema</p>
+    <!-- Seção para usuários não autenticados -->
+    <div id="unauthenticated" class="bg-white bg-opacity-30 backdrop-filter backdrop-blur-lg rounded-xl shadow-xl p-10 text-center max-w-2xl transform transition-all duration-500 hover:scale-105">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4 animate-pulse">Sistema de Reconhecimento Facial</h1>
+      <p class="text-lg text-gray-600 mb-8">Faça login ou cadastre-se para acessar o sistema</p>
       <div class="flex flex-col md:flex-row justify-center gap-6">
-        <a href="/cadastro" class="bg-gradient-to-r from-indigo-500 to-indigo-400 text-white font-semibold py-3 px-8 rounded-full hover:from-blue-600 hover:to-indigo-600 transform hover:scale-110 transition duration-300 shadow-md">Cadastrar Agora</a>
-        <a href="/reconhecimento" class="bg-gradient-to-r from-green-500 to-green-400 text-white font-semibold py-3 px-8 rounded-full hover:from-green-600 hover:to-teal-600 transform hover:scale-110 transition duration-300 shadow-md">Iniciar Reconhecimento</a>
+        <a href="/login.html" class="bg-gradient-to-r from-blue-500 to-blue-400 text-white font-semibold py-3 px-8 rounded-full hover:from-blue-600 hover:to-blue-500 transform hover:scale-110 transition duration-300 shadow-md">Fazer Login</a>
+        <a href="/registro.html" class="bg-gradient-to-r from-green-500 to-green-400 text-white font-semibold py-3 px-8 rounded-full hover:from-green-600 hover:to-green-500 transform hover:scale-110 transition duration-300 shadow-md">Criar Conta</a>
+      </div>
+    </div>
+
+    <!-- Seção para usuários autenticados -->
+    <div id="authenticated" class="hidden bg-white bg-opacity-30 backdrop-filter backdrop-blur-lg rounded-xl shadow-xl p-10 text-center max-w-2xl transform transition-all duration-500 hover:scale-105">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-4">Bem-vindo de volta!</h1>
+      <p class="text-lg text-gray-600 mb-2">Olá, <span id="userName" class="font-semibold text-blue-600"></span></p>
+      <p class="text-lg text-gray-600 mb-8">Acesse as funcionalidades do sistema</p>
+      <div class="flex flex-col md:flex-row justify-center gap-6">
+        <a href="/cadastro" class="bg-gradient-to-r from-indigo-500 to-indigo-400 text-white font-semibold py-3 px-8 rounded-full hover:from-indigo-600 hover:to-indigo-500 transform hover:scale-110 transition duration-300 shadow-md">Cadastrar Rosto</a>
+        <a href="/reconhecimento" class="bg-gradient-to-r from-green-500 to-green-400 text-white font-semibold py-3 px-8 rounded-full hover:from-green-600 hover:to-green-500 transform hover:scale-110 transition duration-300 shadow-md">Iniciar Reconhecimento</a>
+      </div>
+      <div class="mt-6">
+        <button id="logoutBtn" class="bg-gradient-to-r from-red-500 to-red-400 text-white font-semibold py-2 px-6 rounded-full hover:from-red-600 hover:to-red-500 transform hover:scale-110 transition duration-300 shadow-md">Sair</button>
       </div>
     </div>
   </main>
+
+  <script>
+    async function api(method, url, body) {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: body ? JSON.stringify(body) : undefined
+      });
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok && data.ok !== false, data };
+    }
+
+    async function checkAuth() {
+      try {
+        const { ok, data } = await api('GET', '/api/me');
+        const isAuthenticated = ok && data && data.user;
+        
+        // Mostrar/ocultar seções baseado na autenticação
+        document.getElementById('unauthenticated').classList.toggle('hidden', isAuthenticated);
+        document.getElementById('authenticated').classList.toggle('hidden', !isAuthenticated);
+        
+        // Atualizar navegação
+        const navLinks = document.getElementById('navLinks');
+        if (isAuthenticated) {
+          document.getElementById('userName').textContent = data.user.name;
+          navLinks.innerHTML = `
+            <a href="/cadastro" class="text-gray-600 hover:text-blue-500 transition duration-300">Cadastro</a>
+            <a href="/reconhecimento" class="text-gray-600 hover:text-blue-500 transition duration-300">Reconhecimento</a>
+            <button id="navLogoutBtn" class="text-red-600 hover:text-red-700 transition duration-300">Sair</button>
+          `;
+          
+          // Event listener para logout na navegação
+          document.getElementById('navLogoutBtn').addEventListener('click', logout);
+        } else {
+          navLinks.innerHTML = `
+            <a href="/login.html" class="text-gray-600 hover:text-blue-500 transition duration-300">Login</a>
+            <a href="/registro.html" class="text-gray-600 hover:text-blue-500 transition duration-300">Registro</a>
+          `;
+        }
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        // Em caso de erro, mostrar como não autenticado
+        document.getElementById('unauthenticated').classList.remove('hidden');
+        document.getElementById('authenticated').classList.add('hidden');
+      }
+    }
+
+    async function logout() {
+      try {
+        await api('POST', '/api/logout');
+        checkAuth(); // Recarregar estado da autenticação
+      } catch (error) {
+        console.error('Erro no logout:', error);
+      }
+    }
+
+    // Event listener para o botão de logout principal
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    // Verificar autenticação ao carregar a página
+    checkAuth();
+  </script>
 </body>
 </html>

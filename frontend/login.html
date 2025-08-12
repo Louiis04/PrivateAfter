@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+  <header class="bg-white/80 backdrop-blur-lg border-b border-white/20 sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4">
+      <nav class="flex items-center justify-between">
+        <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white/60 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:text-white rounded-lg border border-gray-200 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Voltar ao Início
+        </a>
+        <a href="/registro.html" class="text-sm text-blue-600 hover:text-blue-800">Criar conta</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-6 py-12 max-w-md">
+    <div class="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/30">
+      <h1 class="text-2xl font-bold text-gray-800 mb-6">Entrar</h1>
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-700 mb-1">E-mail</label>
+          <input type="email" name="email" required class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white/70" placeholder="voce@exemplo.com" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-700 mb-1">Senha</label>
+          <input type="password" name="password" required class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white/70" placeholder="••••••••" />
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 transition-colors">Entrar</button>
+      </form>
+      <p id="loginMsg" class="text-sm text-gray-600 mt-4"></p>
+      <p class="text-sm text-gray-600 mt-6">
+        Não tem conta?
+        <a class="text-blue-600 hover:text-blue-800" href="/registro.html">Criar conta</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    async function api(method, url, body) {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: body ? JSON.stringify(body) : undefined
+      });
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok && data.ok !== false, data };
+    }
+
+    const params = new URLSearchParams(location.search);
+    const nextUrl = params.get('next') || '/cadastro';
+
+    // Verificar se já está logado - mais rigoroso
+    (async () => {
+      try {
+        const { ok, data } = await api('GET', '/api/me');
+        // Só redireciona se realmente estiver autenticado E tiver dados do usuário
+        if (ok && data && data.user && data.user.id) {
+          location.replace(nextUrl);
+        }
+      } catch {
+        // Em caso de erro, permanece na página de login
+      }
+    })();
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const msgEl = document.getElementById('loginMsg');
+      
+      msgEl.textContent = 'Fazendo login...';
+      
+      const { ok, data } = await api('POST', '/api/login', {
+        email: f.email.value.trim(),
+        password: f.password.value
+      });
+      
+      if (ok && data && data.user) {
+        msgEl.textContent = 'Login realizado. Redirecionando…';
+        msgEl.className = 'text-sm text-green-600 mt-4';
+        setTimeout(() => location.replace(nextUrl), 500);
+      } else {
+        msgEl.textContent = data.msg || 'Erro no login. Verifique suas credenciais.';
+        msgEl.className = 'text-sm text-red-600 mt-4';
+      }
+    });
+  </script>
+</body>
+</html>

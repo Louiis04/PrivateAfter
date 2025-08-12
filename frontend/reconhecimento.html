@@ -133,7 +133,7 @@
         <div class="flex items-center space-x-3 mb-4">
           <div class="p-2 bg-blue-100 rounded-lg">
             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
           <h3 class="font-semibold text-gray-800">Últimas Detecções</h3>
@@ -169,6 +169,24 @@
   </main>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+  <!-- Checagem de autenticação: exige login -->
+  <script>
+    // Aguardar um pouco para evitar conflitos com redirects anteriores
+    setTimeout(async () => {
+      try {
+        const r = await fetch('/api/me', { credentials: 'same-origin' });
+        const j = await r.json().catch(() => ({}));
+        if (!j || j.ok === false || !j.user || !j.user.id) {
+          window.location.replace('/login.html?next=' + encodeURIComponent(window.location.pathname));
+          return;
+        }
+      } catch {
+        window.location.replace('/login.html?next=' + encodeURIComponent(window.location.pathname));
+        return;
+      }
+    }, 100);
+  </script>
   <script src="/static/js/reconhecimento.js"></script>
 </body>
 </html>
