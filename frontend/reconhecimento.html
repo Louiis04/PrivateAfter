@@ -33,7 +33,7 @@
         </p>
       </div>
 
-      <!-- Toggle Multicâmera -->
+      <!-- Toggle Multicâmera
       <div class="flex justify-center">
         <label class="inline-flex items-center space-x-3 bg-white/70 backdrop-blur-lg px-6 py-3 rounded-xl border border-white/30 cursor-pointer hover:shadow-lg transition-all duration-300">
           <input 
@@ -41,15 +41,15 @@
             id="multiCamToggle" 
             class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
           />
-          <span class="text-gray-700 font-medium">
+          <!-- <span class="text-gray-700 font-medium">
             Habilitar Multicâmera
-          </span>
-          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          </span> -->
+          <!-- <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
           </svg>
         </label>
       </div>
-    </div>
+    </div> --> 
 
     <!-- Área de Vídeo -->
     <section class="video-area space-y-6">
@@ -104,63 +104,62 @@
     <div class="mt-8 grid md:grid-cols-3 gap-6">
       <!-- Status do Sistema -->
       <div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 border border-white/30">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="p-2 bg-green-100 rounded-lg">
-            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <h3 class="font-semibold text-gray-800">Status do Sistema</h3>
-        </div>
-        <div class="space-y-2 text-sm text-gray-600">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <div id="systemStatusIcon" class="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+          Status do Sistema
+        </h3>
+        <div class="space-y-3 text-sm">
           <div class="flex justify-between">
-            <span>Câmeras Ativas:</span>
-            <span id="activeCameras" class="font-medium text-green-600">1</span>
+            <span class="text-gray-600">Câmeras Ativas:</span>
+            <span id="activeCameras" class="font-medium text-gray-800">1</span>
           </div>
           <div class="flex justify-between">
-            <span>Detecções:</span>
-            <span id="detectionCount" class="font-medium text-blue-600">0</span>
+            <span class="text-gray-600">Detecções:</span>
+            <span id="totalDetections" class="font-medium text-gray-800">0</span>
           </div>
           <div class="flex justify-between">
-            <span>FPS:</span>
-            <span id="fpsCounter" class="font-medium text-purple-600">--</span>
+            <span class="text-gray-600">FPS:</span>
+            <span id="currentFPS" class="font-medium text-gray-800">--</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Última Atualização:</span>
+            <span id="lastUpdate" class="font-medium text-gray-800">--</span>
           </div>
         </div>
       </div>
 
       <!-- Últimas Detecções -->
       <div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 border border-white/30">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="p-2 bg-blue-100 rounded-lg">
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          Últimas Detecções
+        </h3>
+        <div id="recentDetections" class="space-y-2 max-h-32 overflow-y-auto">
+          <div class="text-sm text-gray-500 text-center py-4">
+            Nenhuma detecção ainda
           </div>
-          <h3 class="font-semibold text-gray-800">Últimas Detecções</h3>
-        </div>
-        <div id="recentDetections" class="space-y-2 text-sm text-gray-600">
-          <p class="text-center text-gray-400">Nenhuma detecção ainda</p>
         </div>
       </div>
 
       <!-- Controles -->
       <div class="bg-white/60 backdrop-blur-lg rounded-xl p-6 border border-white/30">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="p-2 bg-purple-100 rounded-lg">
-            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-            </svg>
-          </div>
-          <h3 class="font-semibold text-gray-800">Controles</h3>
-        </div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+          </svg>
+          Controles
+        </h3>
         <div class="space-y-3">
-          <button class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200">
+          <button id="pauseDetection" class="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
             Pausar Detecção
           </button>
-          <button class="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-medium rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200">
+          <button id="captureFrame" class="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors">
             Capturar Tela
           </button>
-          <button class="w-full px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200">
+          <button id="stopSystem" class="w-full py-2.5 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">
             Parar Sistema
           </button>
         </div>
@@ -187,6 +186,339 @@
       }
     }, 100);
   </script>
+
+  <!-- Sistema de Reconhecimento -->
+  <script>
+    let socket;
+    let detectionActive = true;
+    let totalDetections = 0;
+    let lastFrameTime = Date.now();
+    let frameCount = 0;
+    let fpsInterval;
+    let recentDetectionsList = [];
+    let video, canvas, ctx;
+    let stream = null;
+
+    // Elementos do DOM
+    const systemStatusIcon = document.getElementById('systemStatusIcon');
+    const activeCamerasEl = document.getElementById('activeCameras');
+    const totalDetectionsEl = document.getElementById('totalDetections');
+    const currentFPSEl = document.getElementById('currentFPS');
+    const lastUpdateEl = document.getElementById('lastUpdate');
+    const recentDetectionsEl = document.getElementById('recentDetections');
+    const pauseBtn = document.getElementById('pauseDetection');
+    const captureBtn = document.getElementById('captureFrame');
+    const stopBtn = document.getElementById('stopSystem');
+
+    // Inicializar câmera
+    async function initCamera() {
+      video = document.getElementById('mainVideo');
+      canvas = document.getElementById('mainOverlay');
+      ctx = canvas.getContext('2d');
+
+      try {
+        // Solicitar acesso à webcam
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: 'user'
+          },
+          audio: false 
+        });
+        
+        video.srcObject = stream;
+        
+        video.onloadedmetadata = () => {
+          // Ajustar canvas para corresponder ao vídeo
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          
+          console.log('Câmera inicializada:', video.videoWidth, 'x', video.videoHeight);
+          updateSystemStatus('online');
+          
+          // Iniciar captura de frames
+          startFrameCapture();
+        };
+
+        video.onerror = (error) => {
+          console.error('Erro no vídeo:', error);
+          updateSystemStatus('offline');
+        };
+
+      } catch (error) {
+        console.error('Erro ao acessar câmera:', error);
+        updateSystemStatus('offline');
+        
+        // Mostrar mensagem de erro no vídeo
+        const videoContainer = video.parentElement;
+        videoContainer.innerHTML = `
+          <div class="w-full h-full flex items-center justify-center bg-gray-800 text-white rounded-xl">
+            <div class="text-center">
+              <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              <h3 class="text-lg font-semibold mb-2">Câmera não disponível</h3>
+              <p class="text-sm text-gray-300">Verifique as permissões ou conecte uma webcam</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Capturar e enviar frames para reconhecimento
+    function startFrameCapture() {
+      if (!video || !detectionActive) return;
+
+      const captureFrame = () => {
+        if (!detectionActive || !video.videoWidth) {
+          requestAnimationFrame(captureFrame);
+          return;
+        }
+
+        // Criar canvas temporário para captura
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        tempCanvas.width = video.videoWidth;
+        tempCanvas.height = video.videoHeight;
+        
+        // Desenhar frame atual
+        tempCtx.drawImage(video, 0, 0);
+        
+        // Converter para DataURL e enviar via Socket
+        const dataURL = tempCanvas.toDataURL('image/jpeg', 0.8);
+        
+        if (socket && socket.connected) {
+          socket.emit('client_frame', { dataURL });
+        }
+
+        // Continuar captura (aproximadamente 10 FPS)
+        setTimeout(() => requestAnimationFrame(captureFrame), 100);
+      };
+
+      captureFrame();
+    }
+
+    // Inicializar SocketIO
+    function initSocket() {
+      socket = io();
+      
+      socket.on('connect', () => {
+        console.log('Conectado ao servidor');
+        updateSystemStatus('online');
+      });
+
+      socket.on('disconnect', () => {
+        console.log('Desconectado do servidor');
+        updateSystemStatus('offline');
+      });
+
+      socket.on('recognition_update', (data) => {
+        handleRecognitionUpdate(data);
+      });
+
+      socket.on('auth_error', () => {
+        console.log('Erro de autenticação no socket');
+        window.location.replace('/login.html');
+      });
+    }
+
+    // Atualizar status do sistema
+    function updateSystemStatus(status) {
+      if (status === 'online') {
+        systemStatusIcon.className = 'w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse';
+      } else {
+        systemStatusIcon.className = 'w-3 h-3 bg-red-500 rounded-full mr-3';
+      }
+      lastUpdateEl.textContent = new Date().toLocaleTimeString();
+    }
+
+    // Processar atualizações de reconhecimento
+    function handleRecognitionUpdate(data) {
+      frameCount++;
+      
+      // Limpar canvas overlay
+      if (ctx && canvas) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Desenhar caixas de detecção
+        if (data.results && data.results.length > 0) {
+          data.results.forEach(result => {
+            const [x, y, w, h] = result.box;
+            
+            // Configurar estilo da caixa
+            ctx.strokeStyle = result.name === 'Desconhecido' ? '#ef4444' : '#22c55e';
+            ctx.lineWidth = 3;
+            ctx.font = '16px Arial';
+            ctx.fillStyle = result.name === 'Desconhecido' ? '#ef4444' : '#22c55e';
+            
+            // Desenhar retângulo
+            ctx.strokeRect(x, y, w, h);
+            
+            // Desenhar label de fundo
+            const textWidth = ctx.measureText(result.name).width;
+            ctx.fillRect(x, y - 25, textWidth + 10, 25);
+            
+            // Desenhar texto
+            ctx.fillStyle = 'white';
+            ctx.fillText(result.name, x + 5, y - 5);
+          });
+
+          // Atualizar contadores
+          totalDetections += data.results.length;
+          totalDetectionsEl.textContent = totalDetections;
+          
+          // Adicionar às detecções recentes (apenas rostos conhecidos)
+          data.results.forEach(result => {
+            if (result.name !== 'Desconhecido') {
+              addRecentDetection(result.name);
+            }
+          });
+        }
+      }
+
+      // Atualizar última atualização
+      lastUpdateEl.textContent = new Date().toLocaleTimeString();
+    }
+
+    // Adicionar detecção recente
+    function addRecentDetection(name) {
+      const now = new Date();
+      const detection = {
+        name: name,
+        time: now.toLocaleTimeString(),
+        timestamp: now.getTime()
+      };
+
+      // Evitar duplicatas muito próximas (mesmo nome em menos de 2 segundos)
+      const recent = recentDetectionsList.find(d => 
+        d.name === name && (now.getTime() - d.timestamp) < 2000
+      );
+      
+      if (recent) return;
+
+      // Adicionar no início da lista
+      recentDetectionsList.unshift(detection);
+      
+      // Manter apenas as últimas 5 detecções
+      if (recentDetectionsList.length > 5) {
+        recentDetectionsList = recentDetectionsList.slice(0, 5);
+      }
+
+      // Atualizar display
+      updateRecentDetectionsDisplay();
+    }
+
+    // Atualizar display das detecções recentes
+    function updateRecentDetectionsDisplay() {
+      if (recentDetectionsList.length === 0) {
+        recentDetectionsEl.innerHTML = `
+          <div class="text-sm text-gray-500 text-center py-4">
+            Nenhuma detecção ainda
+          </div>
+        `;
+        return;
+      }
+
+      recentDetectionsEl.innerHTML = recentDetectionsList.map(detection => `
+        <div class="flex justify-between items-center py-2 px-3 bg-white/50 rounded-lg">
+          <div class="flex items-center space-x-2">
+            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span class="text-sm font-medium text-gray-800">${detection.name}</span>
+          </div>
+          <span class="text-xs text-gray-500">${detection.time}</span>
+        </div>
+      `).join('');
+    }
+
+    // Calcular e atualizar FPS
+    function updateFPS() {
+      const now = Date.now();
+      const elapsed = (now - lastFrameTime) / 1000;
+      const fps = frameCount > 0 ? Math.round(frameCount / elapsed) : 0;
+      
+      currentFPSEl.textContent = fps;
+      
+      // Reset contadores
+      frameCount = 0;
+      lastFrameTime = now;
+    }
+
+    // Event Listeners para controles
+    pauseBtn.addEventListener('click', () => {
+      detectionActive = !detectionActive;
+      if (detectionActive) {
+        pauseBtn.textContent = 'Pausar Detecção';
+        pauseBtn.className = 'w-full py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors';
+        startFrameCapture();
+      } else {
+        pauseBtn.textContent = 'Continuar Detecção';
+        pauseBtn.className = 'w-full py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors';
+      }
+    });
+
+    captureBtn.addEventListener('click', () => {
+      if (video && video.videoWidth) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        tempCanvas.width = video.videoWidth;
+        tempCanvas.height = video.videoHeight;
+        tempCtx.drawImage(video, 0, 0);
+        
+        // Criar link para download
+        const link = document.createElement('a');
+        link.download = `captura_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.jpg`;
+        link.href = tempCanvas.toDataURL('image/jpeg');
+        link.click();
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      if (confirm('Tem certeza que deseja parar o sistema?')) {
+        detectionActive = false;
+        
+        // Parar stream da câmera
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          stream = null;
+        }
+        
+        if (socket) socket.disconnect();
+        updateSystemStatus('offline');
+        
+        // Limpar vídeo
+        if (video) {
+          video.srcObject = null;
+        }
+      }
+    });
+
+    // Inicializar sistema
+    window.addEventListener('load', async () => {
+      // Inicializar Socket primeiro
+      initSocket();
+      
+      // Aguardar um pouco e inicializar câmera
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await initCamera();
+      
+      // Atualizar FPS a cada 3 segundos
+      fpsInterval = setInterval(updateFPS, 3000);
+    });
+
+    // Cleanup ao sair da página
+    window.addEventListener('beforeunload', () => {
+      if (fpsInterval) clearInterval(fpsInterval);
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      if (socket) socket.disconnect();
+    });
+  </script>
+
   <script src="/static/js/reconhecimento.js"></script>
 </body>
 </html>
