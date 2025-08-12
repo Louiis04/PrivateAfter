@@ -178,11 +178,232 @@
         </ul>
       </div>
     </div>
+
+    <!-- Tabela de Rostos Cadastrados -->
+    <div class="mt-12">
+      <div class="bg-white/70 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/30 overflow-hidden">
+        <!-- Header da Tabela -->
+        <div class="bg-gradient-to-r from-green-500 to-teal-600 p-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-white flex items-center">
+              <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              Rostos Cadastrados
+            </h2>
+            <button 
+              id="refreshFacesBtn"
+              class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-medium rounded-lg transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+            >
+              <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Atualizar
+            </button>
+          </div>
+        </div>
+
+        <!-- Conteúdo da Tabela -->
+        <div class="p-6">
+          <!-- Loading State -->
+          <div id="facesLoading" class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p class="mt-2 text-gray-600">Carregando rostos cadastrados...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div id="facesEmpty" class="hidden text-center py-12">
+            <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Nenhum rosto cadastrado</h3>
+            <p class="text-gray-500">Cadastre o primeiro rosto usando o formulário acima.</p>
+          </div>
+
+          <!-- Error State -->
+          <div id="facesError" class="hidden text-center py-12">
+            <div class="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Erro ao carregar</h3>
+            <p class="text-gray-500 mb-4">Não foi possível carregar os rostos cadastrados.</p>
+            <button id="retryLoadFaces" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+              Tentar novamente
+            </button>
+          </div>
+
+          <!-- Tabela -->
+          <div id="facesTable" class="hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <!-- Os cards serão inseridos aqui via JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="/static/js/cadastro.js"></script>
   <script>
+    // Função para excluir um rosto
+    async function deleteFace(faceName) {
+      // Confirmar a exclusão
+      const confirmDelete = confirm(`Tem certeza que deseja excluir o rosto "${faceName}"?\n\nEsta ação não pode ser desfeita.`);
+      if (!confirmDelete) return;
+
+      try {
+        const res = await fetch(`/api/faces/${encodeURIComponent(faceName)}`, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+        
+        const data = await res.json().catch(() => ({ ok: false }));
+        
+        if (data.ok) {
+          // Mostrar mensagem de sucesso
+          showNotification('Rosto excluído com sucesso!', 'success');
+          // Recarregar a lista
+          loadFaces();
+        } else {
+          showNotification(data.msg || 'Erro ao excluir rosto.', 'error');
+        }
+      } catch (error) {
+        console.error('Erro ao excluir rosto:', error);
+        showNotification('Erro ao excluir rosto.', 'error');
+      }
+    }
+
+    // Função para mostrar notificações
+    function showNotification(message, type = 'info') {
+      // Remover notificação anterior se existir
+      const existingNotification = document.getElementById('notification');
+      if (existingNotification) {
+        existingNotification.remove();
+      }
+
+      // Criar nova notificação
+      const notification = document.createElement('div');
+      notification.id = 'notification';
+      notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+      
+      if (type === 'success') {
+        notification.className += ' bg-green-500 text-white';
+      } else if (type === 'error') {
+        notification.className += ' bg-red-500 text-white';
+      } else {
+        notification.className += ' bg-blue-500 text-white';
+      }
+      
+      notification.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            ${type === 'success' ? 
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' :
+              type === 'error' ? 
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' :
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+            }
+          </svg>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Animar entrada
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+      }, 100);
+      
+      // Remover após 4 segundos
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 300);
+      }, 4000);
+    }
+
+    // Função para carregar e exibir rostos (atualizada com botão de exclusão)
+    async function loadFaces() {
+      const loadingEl = document.getElementById('facesLoading');
+      const emptyEl = document.getElementById('facesEmpty');
+      const errorEl = document.getElementById('facesError');
+      const tableEl = document.getElementById('facesTable');
+
+      // Mostrar loading
+      loadingEl.classList.remove('hidden');
+      emptyEl.classList.add('hidden');
+      errorEl.classList.add('hidden');
+      tableEl.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/faces', { credentials: 'same-origin' });
+        const data = await res.json().catch(() => ({ ok: false }));
+
+        loadingEl.classList.add('hidden');
+
+        if (!data.ok) {
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        if (!data.faces || data.faces.length === 0) {
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+
+        // Exibir os rostos com botão de exclusão
+        const container = tableEl.querySelector('.grid');
+        container.innerHTML = data.faces.map(face => `
+          <div class="bg-white/80 backdrop-blur-lg rounded-2xl overflow-hidden shadow-lg border border-white/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+            <!-- Botão de exclusão no canto superior direito -->
+            <div class="relative">
+              <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
+                ${face.photo_url ? 
+                  `<img src="${face.photo_url}" alt="${face.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />` :
+                  `<svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                   </svg>`
+                }
+              </div>
+              <!-- Botão de exclusão - aparece no hover -->
+              <button 
+                onclick="deleteFace('${face.name.replace(/'/g, "\\'")}')"
+                class="absolute top-2 right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-90 hover:scale-100 shadow-lg"
+                title="Excluir ${face.name}"
+              >
+                <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="p-4">
+              <h3 class="font-semibold text-gray-800 text-center truncate" title="${face.name}">${face.name}</h3>
+              <p class="text-xs text-gray-500 text-center mt-1">Cadastrado</p>
+            </div>
+          </div>
+        `).join('');
+
+        tableEl.classList.remove('hidden');
+      } catch (error) {
+        console.error('Erro ao carregar rostos:', error);
+        loadingEl.classList.add('hidden');
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    // Event listeners para botões de refresh e retry
+    document.getElementById('refreshFacesBtn').addEventListener('click', loadFaces);
+    document.getElementById('retryLoadFaces').addEventListener('click', loadFaces);
+
     // Aguardar um pouco e verificar autenticação mais rigorosamente
     setTimeout(async () => {
       try {
@@ -192,20 +413,25 @@
           window.location.replace('/login.html?next=' + encodeURIComponent(window.location.pathname));
           return;
         }
+
+        // Se autenticado, carregar os rostos
+        loadFaces();
       } catch {
         window.location.replace('/login.html?next=' + encodeURIComponent(window.location.pathname));
         return;
       }
-
-      // Carregar rostos cadastrados se autenticado
-      try {
-        const res = await fetch('/api/faces', { credentials: 'same-origin' });
-        const data = await res.json().catch(() => ({ ok: false }));
-        if (data.ok && Array.isArray(data.faces)) {
-          console.log('Rostos cadastrados:', data.faces);
-        }
-      } catch {}
     }, 100);
+
+    // Recarregar rostos após cadastro bem-sucedido (conectar ao SocketIO se disponível)
+    if (typeof io !== 'undefined') {
+      const socket = io();
+      socket.on('submit_result', (result) => {
+        if (result.ok) {
+          showNotification('Rosto cadastrado com sucesso!', 'success');
+          setTimeout(loadFaces, 1000); // Recarregar após 1 segundo
+        }
+      });
+    }
   </script>
 </body>
 </html>

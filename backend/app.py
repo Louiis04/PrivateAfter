@@ -344,6 +344,50 @@ def serve_registro():
 def static_files(path):
     return send_from_directory(str(FRONTEND_DIR / 'static'), path)
 
+@app.route('/api/faces/<string:face_name>', methods=['DELETE'])
+def api_delete_face(face_name):
+    if not current_user_id():
+        return jsonify({'ok': False, 'msg': 'Não autenticado.'}), 401
+    
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cur = conn.cursor()
+        
+        # Buscar o rosto antes de deletar para pegar o nome do arquivo da foto
+        cur.execute("SELECT photo_filename FROM encodings WHERE name = %s", (face_name,))
+        result = cur.fetchone()
+        
+        if not result:
+            cur.close(); conn.close()
+            return jsonify({'ok': False, 'msg': 'Rosto não encontrado.'}), 404
+        
+        photo_filename = result[0]
+        
+        # Deletar do banco
+        cur.execute("DELETE FROM encodings WHERE name = %s", (face_name,))
+        deleted_rows = cur.rowcount
+        conn.commit()
+        cur.close(); conn.close()
+        
+        if deleted_rows == 0:
+            return jsonify({'ok': False, 'msg': 'Rosto não encontrado.'}), 404
+        
+        # Tentar deletar o arquivo de foto se existir
+        if photo_filename:
+            try:
+                photo_path = DATA_DIR / 'faces' / photo_filename
+                if photo_path.exists():
+                    photo_path.unlink()
+            except Exception as e:
+                print(f"Erro ao deletar foto {photo_filename}: {e}")
+        
+        return jsonify({'ok': True, 'msg': f'Rosto "{face_name}" excluído com sucesso.'})
+        
+    except Error as e:
+        print("delete face error:", e)
+        return jsonify({'ok': False, 'msg': 'Erro ao excluir rosto.'}), 500
+
+
 # ----------------- SocketIO -----------------
 @socketio.on('connect')
 def on_connect():
