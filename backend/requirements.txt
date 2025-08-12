@@ -9,3 +9,4 @@ pillow==10.4.0
 uvicorn==0.30.6
 fastapi==0.112.0
 pydantic==2.8.2
+mysql-connector-python==9.0.0

@@ -15,33 +15,48 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / 'data'
 ENCODINGS_FILE = DATA_DIR / 'encodings.pkl'
 
+import mysql.connector
+from mysql.connector import Error
+import json
+
+DB_CONFIG = {
+    'user': 'ari',
+    'password': 'ari',
+    'host': 'localhost',
+    'port': '3307',  # Porta mapeada no docker-compose.yml
+    'database': 'privateafter_db',
+    'raise_on_warnings': True
+}
+
 sio = socketio.Client()
 
-
 def load_known():
-    import pickle
-    if ENCODINGS_FILE.exists():
-        with open(ENCODINGS_FILE, 'rb') as f:
-            return pickle.load(f)
-    return {}
-
+    known = {}
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        cursor.execute("SELECT name, encoding FROM encodings")
+        for name, enc_json in cursor:
+            known[name] = json.loads(enc_json)
+        cursor.close()
+        conn.close()
+    except Error as e:
+        print(f"Erro ao carregar known: {e}")
+    return known
 
 @sio.event
 def connect():
     print('Node connected to server')
 
-
 @sio.event
 def disconnect():
     print('Node disconnected from server')
-
 
 def open_capture(camera_url: str | None):
     if camera_url:
         return cv2.VideoCapture(camera_url)
     # default webcam
     return cv2.VideoCapture(0)
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -106,7 +121,6 @@ def main():
     finally:
         cap.release()
         sio.disconnect()
-
 
 if __name__ == '__main__':
     main()
